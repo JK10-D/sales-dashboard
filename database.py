@@ -6,10 +6,22 @@ import os
 load_dotenv()
 
 def get_engine():
-    url = (
-        f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
-        f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-    )
+    # Streamlit Cloud secrets ou .env local
+    try:
+        import streamlit as st
+        host     = st.secrets["DB_HOST"]
+        port     = st.secrets["DB_PORT"]
+        dbname   = st.secrets["DB_NAME"]
+        user     = st.secrets["DB_USER"]
+        password = st.secrets["DB_PASSWORD"]
+    except Exception:
+        host     = os.getenv('DB_HOST')
+        port     = os.getenv('DB_PORT', '5432')
+        dbname   = os.getenv('DB_NAME')
+        user     = os.getenv('DB_USER')
+        password = os.getenv('DB_PASSWORD')
+
+    url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}"
     return create_engine(url)
 
 def get_kpis(region=None, categorie=None):
